@@ -8,7 +8,7 @@
   "action": {
     "title": "Ficha Ordem",
     "icon": "https://www.owlbear.rodeo/app-icon.png",
-    "popover": "/index.html",
+    "popover": "/leclerc/index.html",
     "height": 700,
     "width": 400
   }
