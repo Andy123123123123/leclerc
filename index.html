@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Ficha Leclerc</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #000; color: #fff; padding: 10px; margin: 0; }
+    h3 { border-bottom: 1px solid #333; padding-bottom: 4px; margin-top: 15px; margin-bottom: 8px; color: #aaa; }
+    
+    /* Estilos de Perícias */
+    .skill-list { display: flex; flex-direction: column; gap: 4px; }
+    .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px; font-size: 13px; }
+    .highlight-blue { color: #2196f3; }
+    .highlight-green { color: #4caf50; }
+    .attr-tag { font-size: 12px; margin: 0 4px; }
+    .bonus-val { display: inline-block; width: 30px; text-align: center; font-weight: bold; }
+    .underline-blue { border-bottom: 2px solid #2196f3; }
+    .underline-green { border-bottom: 2px solid #4caf50; }
+
+    /* Ataques e Rituais */
+    .card { background: #111; border: 1px solid #222; border-radius: 6px; padding: 8px; margin-bottom: 8px; }
+    .card-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+    .card-info { font-size: 12px; color: #a855f7; display: flex; gap: 10px; align-items: center; }
+    .ritual-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 6px; }
+    .ritual-btn { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 6px 4px; border-radius: 4px; font-size: 11px; text-align: center; cursor: pointer; }
+    .ritual-btn:hover { background: #2a2a2a; border-color: #a855f7; }
+    .ritual-btn span { display: block; color: #888; font-size: 9px; margin-top: 2px; }
+
+    .roll-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 15px; margin-right: 6px; }
+    .roll-btn:hover { color: #fff; transform: scale(1.1); }
+  </style>
+</head>
+<body>
+
+  <h3>Ataques & Rituais</h3>
+  <div id="attacks-container"></div>
+
+  <h3>Perícias</h3>
+  <div class="skill-list" id="skills-container"></div>
+
+  <script type="module">
+    import OBR from "https://unpkg.com/@owlbear-rodeo/sdk";
+
+    const atributos = { AGI: 2, FOR: 3, INT: 1, PRE: 2, VIG: 3 };
+
+    // Lista de Perícias
+    const pericias = [
+      { nome: "Fortitude", attr: "VIG", bonus: 5, treino: 0, cor: "green" },
+      { nome: "Furtividade+", attr: "AGI", bonus: 10, treino: 0, cor: "blue" },
+      { nome: "Iniciativa", attr: "AGI", bonus: 0, treino: 5, cor: "white" },
+      { nome: "Luta", attr: "FOR", bonus: 10, treino: 0, cor: "blue" },
+      { nome: "Ocultismo*", attr: "INT", bonus: 10, treino: 0, cor: "blue" },
+      { nome: "Pilotagem*", attr: "AGI", bonus: 10, treino: 0, cor: "blue" },
+      { nome: "Reflexos", attr: "AGI", bonus: 10, treino: 0, cor: "blue" },
+      { nome: "Vontade", attr: "PRE", bonus: 5, treino: 0, cor: "green" }
+    ];
+
+    // Função para rolar múltiplos dados (ex: 3d8+3)
+    function rolarDados(qtd, lados, soma = 0) {
+      let resultados = [];
+      let total = 0;
+      for (let i = 0; i < qtd; i++) {
+        let val = Math.floor(Math.random() * lados) + 1;
+        resultados.push(val);
+        total += val;
+      }
+      total += soma;
+      return { resultados, total };
+    }
+
+    // Função de Rolagem de Ataque/Dano
+    async function rolarAtaque(nome, qtd, lados, soma = 0, crit = "") {
+      const { resultados, total } = rolarDados(qtd, lados, soma);
+      const player = await OBR.player.getName();
+      let msg = `${player} - Dano de ${nome}: [${resultados.join(", ")}]`;
+      if (soma > 0) msg += ` + ${soma}`;
+      msg += ` = ${total}`;
+      if (crit) msg += ` (Crítico: ${crit})`;
+
+      OBR.notification.show(msg);
+    }
+
+    // Função de Rolagem de Perícia
+    async function rolarPericia(p) {
+      const qtdDados = atributos[p.attr] || 1;
+      let dados = [];
+      let maiorDado = 0;
+
+      if (qtdDados <= 0) {
+        const d1 = Math.floor(Math.random() * 20) + 1;
+        const d2 = Math.floor(Math.random() * 20) + 1;
+        dados = [d1, d2];
+        maiorDado = Math.min(d1, d2);
+      } else {
+        for (let i = 0; i < qtdDados; i++) {
+          dados.push(Math.floor(Math.random() * 20) + 1);
+        }
+        maiorDado = Math.max(...dados);
+      }
+
+      const totalBonus = p.bonus + p.treino;
+      const total = maiorDado + totalBonus;
+      const player = await OBR.player.getName();
+
+      OBR.notification.show(`${player} - Teste de ${p.nome}: [${dados.join(", ")}] ➔ Maior: ${maiorDado} + ${totalBonus} = ${total}`);
+    }
+
+    // Renderizar Ataques e Rituais
+    const attacksContainer = document.getElementById("attacks-container");
+    attacksContainer.innerHTML = `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="card-title">Guarda chuva</div>
+            <div class="card-info"><span>Dano: 1d8</span> <span>Crítico: 18</span></div>
+          </div>
+          <button class="roll-btn" id="btn-gc">🎲</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="card-title">Ponta do Guarda-Chuva</div>
+            <div class="card-info"><span>Dano: 1d12</span> <span>Crítico: 1/x4</span></div>
+          </div>
+          <button class="roll-btn" id="btn-pgc">🎲</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Decadência</div>
+        <div class="ritual-grid">
+          <button class="ritual-btn" id="btn-dec-norm">NORMAL<span>2d8+2</span></button>
+          <button class="ritual-btn" id="btn-dec-disc">DISCENTE<span>3d8+3</span></button>
+          <button class="ritual-btn" id="btn-dec-verd">VERDADEIRO<span>8d8+8</span></button>
+        </div>
+      </div>
+    `;
+
+    // Eventos dos botões de Ataques
+    document.getElementById("btn-gc").onclick = () => rolarAtaque("Guarda-chuva", 1, 8, 0, "18");
+    document.getElementById("btn-pgc").onclick = () => rolarAtaque("Ponta do Guarda-Chuva", 1, 12, 0, "1/x4");
+    document.getElementById("btn-dec-norm").onclick = () => rolarAtaque("Decadência (Normal)", 2, 8, 2);
+    document.getElementById("btn-dec-disc").onclick = () => rolarAtaque("Decadência (Discente)", 3, 8, 3);
+    document.getElementById("btn-dec-verd").onclick = () => rolarAtaque("Decadência (Verdadeiro)", 8, 8, 8);
+
+    // Renderizar Perícias
+    const skillsContainer = document.getElementById("skills-container");
+    pericias.forEach(p => {
+      const row = document.createElement("div");
+      row.className = "skill-row";
+      let classColor = p.cor === "blue" ? "highlight-blue" : (p.cor === "green" ? "highlight-green" : "");
+
+      row.innerHTML = `
+        <button class="roll-btn">🎲</button>
+        <span class="skill-name ${classColor}" style="flex-grow:1; font-weight:bold;">${p.nome}</span>
+        <span class="attr-tag ${classColor}">( ${p.attr} )</span>
+        <span class="attr-tag ${classColor}">( ${p.bonus} )</span>
+        <span class="bonus-val ${p.bonus > 0 ? (p.cor === 'blue' ? 'underline-blue highlight-blue' : 'underline-green highlight-green') : ''}">${p.bonus}</span>
+        <span class="bonus-val">${p.treino}</span>
+      `;
+      row.querySelector(".roll-btn").onclick = () => rolarPericia(p);
+      skillsContainer.appendChild(row);
+    });
+
+    OBR.onReady(() => {
+      console.log("Ficha com Ataques e Rituais pronta!");
+    });
+  </script>
+</body>
+</html>
