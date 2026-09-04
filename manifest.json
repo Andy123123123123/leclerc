@@ -1,0 +1,15 @@
+{
+  "name": "Ficha Ordem Paranormal",
+  "version": "1.0.0",
+  "manifest_version": 1,
+  "description": "Ficha do leclerc",
+  "author": "Paulin",
+  "icon": "https://www.owlbear.rodeo/app-icon.png",
+  "action": {
+    "title": "Ficha Ordem",
+    "icon": "https://www.owlbear.rodeo/app-icon.png",
+    "popover": "/index.html",
+    "height": 700,
+    "width": 400
+  }
+}
