@@ -7,6 +7,16 @@
     body { font-family: Arial, sans-serif; background: #000; color: #fff; padding: 10px; margin: 0; }
     h3 { border-bottom: 1px solid #333; padding-bottom: 4px; margin-top: 15px; margin-bottom: 8px; color: #aaa; }
     
+    /* Abas de Navegação */
+    .tab-container { display: flex; gap: 6px; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+    .tab-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #888; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; }
+    .tab-btn:hover { background: #2a2a2a; color: #fff; }
+    .tab-btn.active { background: #333; color: #fff; border-color: #555; }
+
+    /* Conteúdo das Abas */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
     /* Perícias */
     .skill-list { display: flex; flex-direction: column; gap: 4px; }
     .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px; font-size: 13px; }
@@ -32,18 +42,49 @@
 </head>
 <body>
 
-  <h3>Ataques & Rituais</h3>
-  <div id="attacks-container"></div>
+  <!-- Menu de Navegação por Abas -->
+  <div class="tab-container">
+    <button class="tab-btn active" id="tab-btn-attacks">Ataques & Rituais</button>
+    <button class="tab-btn" id="tab-btn-skills">Perícias</button>
+  </div>
 
-  <h3>Perícias</h3>
-  <div class="skill-list" id="skills-container"></div>
+  <!-- Aba 1: Ataques & Rituais -->
+  <div id="tab-attacks" class="tab-content active">
+    <h3>Ataques & Rituais</h3>
+    <div id="attacks-container"></div>
+  </div>
+
+  <!-- Aba 2: Perícias -->
+  <div id="tab-skills" class="tab-content">
+    <h3>Perícias</h3>
+    <div class="skill-list" id="skills-container"></div>
+  </div>
 
   <script type="module">
     import OBR from "https://unpkg.com/@owlbear-rodeo/sdk";
 
+    // Controle de troca das Abas
+    const tabBtnAttacks = document.getElementById("tab-btn-attacks");
+    const tabBtnSkills = document.getElementById("tab-btn-skills");
+    const tabAttacks = document.getElementById("tab-attacks");
+    const tabSkills = document.getElementById("tab-skills");
+
+    tabBtnAttacks.onclick = () => {
+      tabBtnAttacks.classList.add("active");
+      tabBtnSkills.classList.remove("active");
+      tabAttacks.classList.add("active");
+      tabSkills.classList.remove("active");
+    };
+
+    tabBtnSkills.onclick = () => {
+      tabBtnSkills.classList.add("active");
+      tabBtnAttacks.classList.remove("active");
+      tabSkills.classList.add("active");
+      tabAttacks.classList.remove("active");
+    };
+
     const atributos = { AGI: 2, FOR: 3, INT: 1, PRE: 2, VIG: 3 };
 
-    
     const pericias = [
       { nome: "Fortitude", attr: "VIG", bonus: 5, treino: 0, cor: "green" },
       { nome: "Furtividade+", attr: "AGI", bonus: 10, treino: 0, cor: "blue" },
@@ -55,7 +96,6 @@
       { nome: "Vontade", attr: "PRE", bonus: 5, treino: 0, cor: "green" }
     ];
 
-  
     function rolarDados(qtd, lados, soma = 0) {
       let resultados = [];
       let total = 0;
@@ -68,7 +108,6 @@
       return { resultados, total };
     }
 
-   
     async function rolarAtaque(nome, qtd, lados, soma = 0, crit = "") {
       const { resultados, total } = rolarDados(qtd, lados, soma);
       const player = await OBR.player.getName();
@@ -80,7 +119,6 @@
       OBR.notification.show(msg);
     }
 
-  
     async function rolarPericia(p) {
       const qtdDados = atributos[p.attr] || 1;
       let dados = [];
@@ -105,7 +143,6 @@
       OBR.notification.show(`${player} - Teste de ${p.nome}: [${dados.join(", ")}] ➔ Maior: ${maiorDado} + ${totalBonus} = ${total}`);
     }
 
-   
     const attacksContainer = document.getElementById("attacks-container");
     attacksContainer.innerHTML = `
       <div class="card">
@@ -138,14 +175,12 @@
       </div>
     `;
 
-   
     document.getElementById("btn-gc").onclick = () => rolarAtaque("Guarda-chuva", 1, 8, 0, "18");
     document.getElementById("btn-pgc").onclick = () => rolarAtaque("Ponta do Guarda-Chuva", 1, 12, 0, "1/x4");
     document.getElementById("btn-dec-norm").onclick = () => rolarAtaque("Decadência (Normal)", 2, 8, 2);
     document.getElementById("btn-dec-disc").onclick = () => rolarAtaque("Decadência (Discente)", 3, 8, 3);
     document.getElementById("btn-dec-verd").onclick = () => rolarAtaque("Decadência (Verdadeiro)", 8, 8, 8);
 
- 
     const skillsContainer = document.getElementById("skills-container");
     pericias.forEach(p => {
       const row = document.createElement("div");
@@ -165,7 +200,7 @@
     });
 
     OBR.onReady(() => {
-      console.log("Ficha com Ataques e Rituais pronta!");
+      console.log("Ficha com Aba de Ataques e Perícias pronta!");
     });
   </script>
 </body>
