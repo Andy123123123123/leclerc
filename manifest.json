@@ -4,10 +4,10 @@
   "manifest_version": 1,
   "description": "Ficha do leclerc",
   "author": "Paulin",
-  "icon": "https://imgur.com/a/G99gMHv",
+  "icon": "https://www.olwbear.rodeo/app-icon.png",
   "action": {
     "title": "Ficha Leclerc",
-    "icon": "https://imgur.com/a/G99gMHv",
+    "icon": "https://www.olwbear.rodeo/app-icon.png",
    "popover": "/leclerc/index.html",
     "height": 700,
     "width": 400
