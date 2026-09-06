@@ -39,13 +39,15 @@
     .roll-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 15px; margin-right: 6px; }
     .roll-btn:hover { color: #fff; transform: scale(1.1); }
   </style>
+  <!-- SDK Global do Owlbear Rodeo -->
+  <script src="https://unpkg.com/@owlbear-rodeo/sdk"></script>
 </head>
 <body>
 
   <!-- Menu de Navegação por Abas -->
   <div class="tab-container">
-    <button class="tab-btn active" id="tab-btn-attacks">Ataques & Rituais</button>
-    <button class="tab-btn" id="tab-btn-skills">Perícias</button>
+    <button class="tab-btn active" id="btn-attacks" onclick="mudarAba('attacks')">Ataques & Rituais</button>
+    <button class="tab-btn" id="btn-skills" onclick="mudarAba('skills')">Perícias</button>
   </div>
 
   <!-- Aba 1: Ataques & Rituais -->
@@ -60,30 +62,20 @@
     <div class="skill-list" id="skills-container"></div>
   </div>
 
-  <script type="module">
-    import OBR from "https://unpkg.com/@owlbear-rodeo/sdk";
+  <script>
+    // Função pura de troca de abas (Executa instantaneamente no clique)
+    function mudarAba(nomeAba) {
+      document.getElementById('tab-attacks').classList.remove('active');
+      document.getElementById('tab-skills').classList.remove('active');
+      document.getElementById('btn-attacks').classList.remove('active');
+      document.getElementById('btn-skills').classList.remove('active');
 
-    // Função global de troca de abas
-    function inicializarAbas() {
-      const btnAttacks = document.getElementById("tab-btn-attacks");
-      const btnSkills = document.getElementById("tab-btn-skills");
-      const tabAttacks = document.getElementById("tab-attacks");
-      const tabSkills = document.getElementById("tab-skills");
-
-      if (btnAttacks && btnSkills) {
-        btnAttacks.addEventListener("click", () => {
-          btnAttacks.classList.add("active");
-          btnSkills.classList.remove("active");
-          tabAttacks.classList.add("active");
-          tabSkills.classList.remove("active");
-        });
-
-        btnSkills.addEventListener("click", () => {
-          btnSkills.classList.add("active");
-          btnAttacks.classList.remove("active");
-          tabSkills.classList.add("active");
-          tabAttacks.classList.remove("active");
-        });
+      if (nomeAba === 'attacks') {
+        document.getElementById('tab-attacks').classList.add('active');
+        document.getElementById('btn-attacks').classList.add('active');
+      } else {
+        document.getElementById('tab-skills').classList.add('active');
+        document.getElementById('btn-skills').classList.add('active');
       }
     }
 
@@ -115,16 +107,20 @@
     async function rolarAtaque(nome, qtd, lados, soma = 0, crit = "") {
       const { resultados, total } = rolarDados(qtd, lados, soma);
       let player = "Jogador";
-      try {
-        player = await OBR.player.getName();
-      } catch (e) { console.log(e); }
+      if (window.OBR && OBR.isReady) {
+        try { player = await OBR.player.getName(); } catch (e) {}
+      }
 
       let msg = `${player} - Dano de ${nome}: [${resultados.join(", ")}]`;
       if (soma > 0) msg += ` + ${soma}`;
       msg += ` = ${total}`;
       if (crit) msg += ` (Crítico: ${crit})`;
 
-      OBR.notification.show(msg);
+      if (window.OBR && OBR.isReady) {
+        OBR.notification.show(msg);
+      } else {
+        alert(msg);
+      }
     }
 
     async function rolarPericia(p) {
@@ -147,15 +143,21 @@
       const totalBonus = p.bonus + p.treino;
       const total = maiorDado + totalBonus;
       let player = "Jogador";
-      try {
-        player = await OBR.player.getName();
-      } catch (e) { console.log(e); }
+      if (window.OBR && OBR.isReady) {
+        try { player = await OBR.player.getName(); } catch (e) {}
+      }
 
-      OBR.notification.show(`${player} - Teste de ${p.nome}: [${dados.join(", ")}] ➔ Maior: ${maiorDado} + ${totalBonus} = ${total}`);
+      const msg = `${player} - Teste de ${p.nome}: [${dados.join(", ")}] ➔ Maior: ${maiorDado} + ${totalBonus} = ${total}`;
+      
+      if (window.OBR && OBR.isReady) {
+        OBR.notification.show(msg);
+      } else {
+        alert(msg);
+      }
     }
 
-    // Renderizar Conteúdo
-    function renderizarConteudo() {
+    function renderizar() {
+      // Renderizar Ataques
       const attacksContainer = document.getElementById("attacks-container");
       attacksContainer.innerHTML = `
         <div class="card">
@@ -194,6 +196,7 @@
       document.getElementById("btn-dec-disc").onclick = () => rolarAtaque("Decadência (Discente)", 3, 8, 3);
       document.getElementById("btn-dec-verd").onclick = () => rolarAtaque("Decadência (Verdadeiro)", 8, 8, 8);
 
+      // Renderizar Perícias
       const skillsContainer = document.getElementById("skills-container");
       skillsContainer.innerHTML = "";
       pericias.forEach(p => {
@@ -214,16 +217,17 @@
       });
     }
 
-    // Inicialização do documento e do SDK
-    document.addEventListener("DOMContentLoaded", () => {
-      inicializarAbas();
-      renderizarConteudo();
-    });
+    // Executa assim que o HTML carregar
+    window.onload = () => {
+      renderizar();
+    };
 
-    OBR.onReady(() => {
-      inicializarAbas();
-      renderizarConteudo();
-    });
+    // Conecta com o Owlbear Rodeo se disponível
+    if (window.OBR) {
+      OBR.onReady(() => {
+        console.log("Owlbear Rodeo Conectado!");
+      });
+    }
   </script>
 </body>
 </html>
