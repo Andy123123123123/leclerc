@@ -8,10 +8,10 @@
     h3 { border-bottom: 1px solid #333; padding-bottom: 4px; margin-top: 15px; margin-bottom: 8px; color: #aaa; }
     
     /* Abas de Navegação */
-    .tab-container { display: flex; gap: 6px; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 6px; }
-    .tab-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #888; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; }
+    .tab-container { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+    .tab-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #888; padding: 8px 2px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; text-align: center; }
     .tab-btn:hover { background: #2a2a2a; color: #fff; }
-    .tab-btn.active { background: #333; color: #fff; border-color: #555; }
+    .tab-btn.active { background: #333; color: #fff; border-color: #2196f3; }
 
     /* Conteúdo das Abas */
     .tab-content { display: none; }
@@ -53,7 +53,7 @@
     .roll-btn:hover { color: #fff; transform: scale(1.1); }
 
     /* Calculadora */
-    .calc-container { background: #111; border: 1px solid #222; border-radius: 6px; padding: 10px; max-width: 240px; margin: 0 auto; }
+    .calc-container { background: #111; border: 1px solid #222; border-radius: 6px; padding: 10px; width: 100%; box-sizing: border-box; }
     .calc-display { width: 100%; height: 36px; background: #000; border: 1px solid #333; color: #0f0; font-family: monospace; font-size: 18px; text-align: right; padding: 4px 8px; box-sizing: border-box; margin-bottom: 10px; border-radius: 4px; }
     .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
     .calc-btn { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; text-align: center; }
@@ -172,7 +172,7 @@
       }
     }
 
-    // Lógica da Calculadora
+    // Calculadora
     let calcExpression = "";
     function calcAdd(val) {
       if (calcExpression === "0") calcExpression = "";
@@ -193,10 +193,8 @@
       }
     }
 
-    // Atributos do Personagem
     const atributos = { AGI: 2, FOR: 3, INT: 1, PRE: 2, VIG: 3 };
 
-    // Perícias e Bônus
     const pericias = [
       { nome: "Fortitude", attr: "VIG", bonus: 5, treino: 0, cor: "green" },
       { nome: "Furtividade+", attr: "AGI", bonus: 10, treino: 0, cor: "blue" },
