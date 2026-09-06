@@ -4,10 +4,10 @@
   "manifest_version": 1,
   "description": "Ficha do leclerc",
   "author": "Paulin",
-  "icon": "https://media.discordapp.net/attachments/1358324081417781301/1546024592823427214/7_Sem_Titulo_20260905200543.png?ex=6a9e471a&is=6a9cf59a&hm=0eb887642e6979db9c7e9c2ba59d73de9cfcab23b087d8fb10fbe074b2bd352a&=&format=webp&quality=lossless&width=1024&height=1024",
+  "icon": "https://imgur.com/a/G99gMHv",
   "action": {
-    "title": "Ficha Ordem",
-    "icon": "https://media.discordapp.net/attachments/1358324081417781301/1546024592823427214/7_Sem_Titulo_20260905200543.png?ex=6a9e471a&is=6a9cf59a&hm=0eb887642e6979db9c7e9c2ba59d73de9cfcab23b087d8fb10fbe074b2bd352a&=&format=webp&quality=lossless&width=1024&height=1024",
+    "title": "Ficha Leclerc",
+    "icon": "https://imgur.com/a/G99gMHv",
    "popover": "/leclerc/index.html",
     "height": 700,
     "width": 400
