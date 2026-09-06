@@ -17,6 +17,19 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
+    /* Painel de Dados em Cada Aba */
+    .dice-panel { background: #111; border: 1px solid #222; border-radius: 6px; padding: 8px; margin-bottom: 12px; }
+    .dice-panel-title { font-size: 12px; font-weight: bold; color: #888; margin-bottom: 6px; text-transform: uppercase; }
+    .dice-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .dice-btn { background: #1f1f1f; border: 1px solid #333; color: #e0e0e0; padding: 6px 0; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
+    .dice-btn:hover { background: #333; border-color: #2196f3; color: #fff; }
+
+    /* Customizado (Quantidade d Lados) */
+    .custom-dice-row { display: flex; gap: 6px; margin-top: 6px; }
+    .custom-dice-row input { background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 4px; padding: 4px 6px; font-size: 12px; width: 50%; text-align: center; }
+    .custom-dice-row button { flex: 1; background: #2196f3; border: none; color: #fff; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .custom-dice-row button:hover { background: #1e88e5; }
+
     /* Perícias */
     .skill-list { display: flex; flex-direction: column; gap: 4px; }
     .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px; font-size: 13px; }
@@ -39,7 +52,6 @@
     .roll-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 15px; margin-right: 6px; }
     .roll-btn:hover { color: #fff; transform: scale(1.1); }
   </style>
-  <!-- SDK Global do Owlbear Rodeo -->
   <script src="https://unpkg.com/@owlbear-rodeo/sdk"></script>
 </head>
 <body>
@@ -52,18 +64,55 @@
 
   <!-- Aba 1: Ataques & Rituais -->
   <div id="tab-attacks" class="tab-content active">
+    <!-- Rolador Geral de Dados -->
+    <div class="dice-panel">
+      <div class="dice-panel-title">Rolar Dados Gerais</div>
+      <div class="dice-grid">
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 4)">d4</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 6)">d6</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 8)">d8</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 10)">d10</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 12)">d12</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 20)">d20</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 100)">d100</button>
+      </div>
+      <div class="custom-dice-row">
+        <input type="number" id="qtd-attacks" value="1" min="1" placeholder="Qtd">
+        <input type="number" id="lados-attacks" value="6" min="2" placeholder="Lados">
+        <button onclick="rolarPersonalizado('qtd-attacks', 'lados-attacks')">Rolar</button>
+      </div>
+    </div>
+
     <h3>Ataques & Rituais</h3>
     <div id="attacks-container"></div>
   </div>
 
   <!-- Aba 2: Perícias -->
   <div id="tab-skills" class="tab-content">
+    <!-- Rolador Geral de Dados -->
+    <div class="dice-panel">
+      <div class="dice-panel-title">Rolar Dados Gerais</div>
+      <div class="dice-grid">
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 4)">d4</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 6)">d6</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 8)">d8</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 10)">d10</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 12)">d12</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 20)">d20</button>
+        <button class="dice-btn" onclick="rolarDadoLivre(1, 100)">d100</button>
+      </div>
+      <div class="custom-dice-row">
+        <input type="number" id="qtd-skills" value="1" min="1" placeholder="Qtd">
+        <input type="number" id="lados-skills" value="6" min="2" placeholder="Lados">
+        <button onclick="rolarPersonalizado('qtd-skills', 'lados-skills')">Rolar</button>
+      </div>
+    </div>
+
     <h3>Perícias</h3>
     <div class="skill-list" id="skills-container"></div>
   </div>
 
   <script>
-    // Função pura de troca de abas (Executa instantaneamente no clique)
     function mudarAba(nomeAba) {
       document.getElementById('tab-attacks').classList.remove('active');
       document.getElementById('tab-skills').classList.remove('active');
@@ -104,6 +153,29 @@
       return { resultados, total };
     }
 
+    async function enviarNotificacao(msg) {
+      if (window.OBR && OBR.isReady) {
+        OBR.notification.show(msg);
+      } else {
+        alert(msg);
+      }
+    }
+
+    async function rolarDadoLivre(qtd, lados) {
+      const { resultados, total } = rolarDados(qtd, lados);
+      let player = "Jogador";
+      if (window.OBR && OBR.isReady) {
+        try { player = await OBR.player.getName(); } catch (e) {}
+      }
+      enviarNotificacao(`${player} - Rolo de ${qtd}d${lados}: [${resultados.join(", ")}] = ${total}`);
+    }
+
+    function rolarPersonalizado(idQtd, idLados) {
+      const qtd = parseInt(document.getElementById(idQtd).value) || 1;
+      const lados = parseInt(document.getElementById(idLados).value) || 6;
+      rolarDadoLivre(qtd, lados);
+    }
+
     async function rolarAtaque(nome, qtd, lados, soma = 0, crit = "") {
       const { resultados, total } = rolarDados(qtd, lados, soma);
       let player = "Jogador";
@@ -116,11 +188,7 @@
       msg += ` = ${total}`;
       if (crit) msg += ` (Crítico: ${crit})`;
 
-      if (window.OBR && OBR.isReady) {
-        OBR.notification.show(msg);
-      } else {
-        alert(msg);
-      }
+      enviarNotificacao(msg);
     }
 
     async function rolarPericia(p) {
@@ -147,17 +215,10 @@
         try { player = await OBR.player.getName(); } catch (e) {}
       }
 
-      const msg = `${player} - Teste de ${p.nome}: [${dados.join(", ")}] ➔ Maior: ${maiorDado} + ${totalBonus} = ${total}`;
-      
-      if (window.OBR && OBR.isReady) {
-        OBR.notification.show(msg);
-      } else {
-        alert(msg);
-      }
+      enviarNotificacao(`${player} - Teste de ${p.nome}: [${dados.join(", ")}] ➔ Maior: ${maiorDado} + ${totalBonus} = ${total}`);
     }
 
     function renderizar() {
-      // Renderizar Ataques
       const attacksContainer = document.getElementById("attacks-container");
       attacksContainer.innerHTML = `
         <div class="card">
@@ -196,7 +257,6 @@
       document.getElementById("btn-dec-disc").onclick = () => rolarAtaque("Decadência (Discente)", 3, 8, 3);
       document.getElementById("btn-dec-verd").onclick = () => rolarAtaque("Decadência (Verdadeiro)", 8, 8, 8);
 
-      // Renderizar Perícias
       const skillsContainer = document.getElementById("skills-container");
       skillsContainer.innerHTML = "";
       pericias.forEach(p => {
@@ -217,12 +277,10 @@
       });
     }
 
-    // Executa assim que o HTML carregar
     window.onload = () => {
       renderizar();
     };
 
-    // Conecta com o Owlbear Rodeo se disponível
     if (window.OBR) {
       OBR.onReady(() => {
         console.log("Owlbear Rodeo Conectado!");
