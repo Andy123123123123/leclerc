@@ -63,25 +63,29 @@
   <script type="module">
     import OBR from "https://unpkg.com/@owlbear-rodeo/sdk";
 
-    // Controle de troca das Abas
-    const tabBtnAttacks = document.getElementById("tab-btn-attacks");
-    const tabBtnSkills = document.getElementById("tab-btn-skills");
-    const tabAttacks = document.getElementById("tab-attacks");
-    const tabSkills = document.getElementById("tab-skills");
+    // Função global de troca de abas
+    function inicializarAbas() {
+      const btnAttacks = document.getElementById("tab-btn-attacks");
+      const btnSkills = document.getElementById("tab-btn-skills");
+      const tabAttacks = document.getElementById("tab-attacks");
+      const tabSkills = document.getElementById("tab-skills");
 
-    tabBtnAttacks.onclick = () => {
-      tabBtnAttacks.classList.add("active");
-      tabBtnSkills.classList.remove("active");
-      tabAttacks.classList.add("active");
-      tabSkills.classList.remove("active");
-    };
+      if (btnAttacks && btnSkills) {
+        btnAttacks.addEventListener("click", () => {
+          btnAttacks.classList.add("active");
+          btnSkills.classList.remove("active");
+          tabAttacks.classList.add("active");
+          tabSkills.classList.remove("active");
+        });
 
-    tabBtnSkills.onclick = () => {
-      tabBtnSkills.classList.add("active");
-      tabBtnAttacks.classList.remove("active");
-      tabSkills.classList.add("active");
-      tabAttacks.classList.remove("active");
-    };
+        btnSkills.addEventListener("click", () => {
+          btnSkills.classList.add("active");
+          btnAttacks.classList.remove("active");
+          tabSkills.classList.add("active");
+          tabAttacks.classList.remove("active");
+        });
+      }
+    }
 
     const atributos = { AGI: 2, FOR: 3, INT: 1, PRE: 2, VIG: 3 };
 
@@ -110,7 +114,11 @@
 
     async function rolarAtaque(nome, qtd, lados, soma = 0, crit = "") {
       const { resultados, total } = rolarDados(qtd, lados, soma);
-      const player = await OBR.player.getName();
+      let player = "Jogador";
+      try {
+        player = await OBR.player.getName();
+      } catch (e) { console.log(e); }
+
       let msg = `${player} - Dano de ${nome}: [${resultados.join(", ")}]`;
       if (soma > 0) msg += ` + ${soma}`;
       msg += ` = ${total}`;
@@ -138,69 +146,83 @@
 
       const totalBonus = p.bonus + p.treino;
       const total = maiorDado + totalBonus;
-      const player = await OBR.player.getName();
+      let player = "Jogador";
+      try {
+        player = await OBR.player.getName();
+      } catch (e) { console.log(e); }
 
       OBR.notification.show(`${player} - Teste de ${p.nome}: [${dados.join(", ")}] ➔ Maior: ${maiorDado} + ${totalBonus} = ${total}`);
     }
 
-    const attacksContainer = document.getElementById("attacks-container");
-    attacksContainer.innerHTML = `
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="card-title">Guarda chuva</div>
-            <div class="card-info"><span>Dano: 1d8</span> <span>Crítico: 18</span></div>
+    // Renderizar Conteúdo
+    function renderizarConteudo() {
+      const attacksContainer = document.getElementById("attacks-container");
+      attacksContainer.innerHTML = `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div class="card-title">Guarda chuva</div>
+              <div class="card-info"><span>Dano: 1d8</span> <span>Crítico: 18</span></div>
+            </div>
+            <button class="roll-btn" id="btn-gc">🎲</button>
           </div>
-          <button class="roll-btn" id="btn-gc">🎲</button>
         </div>
-      </div>
 
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="card-title">Ponta do Guarda-Chuva</div>
-            <div class="card-info"><span>Dano: 1d12</span> <span>Crítico: 1/x4</span></div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div class="card-title">Ponta do Guarda-Chuva</div>
+              <div class="card-info"><span>Dano: 1d12</span> <span>Crítico: 1/x4</span></div>
+            </div>
+            <button class="roll-btn" id="btn-pgc">🎲</button>
           </div>
-          <button class="roll-btn" id="btn-pgc">🎲</button>
         </div>
-      </div>
 
-      <div class="card">
-        <div class="card-title">Decadência</div>
-        <div class="ritual-grid">
-          <button class="ritual-btn" id="btn-dec-norm">NORMAL<span>2d8+2</span></button>
-          <button class="ritual-btn" id="btn-dec-disc">DISCENTE<span>3d8+3</span></button>
-          <button class="ritual-btn" id="btn-dec-verd">VERDADEIRO<span>8d8+8</span></button>
+        <div class="card">
+          <div class="card-title">Decadência</div>
+          <div class="ritual-grid">
+            <button class="ritual-btn" id="btn-dec-norm">NORMAL<span>2d8+2</span></button>
+            <button class="ritual-btn" id="btn-dec-disc">DISCENTE<span>3d8+3</span></button>
+            <button class="ritual-btn" id="btn-dec-verd">VERDADEIRO<span>8d8+8</span></button>
+          </div>
         </div>
-      </div>
-    `;
-
-    document.getElementById("btn-gc").onclick = () => rolarAtaque("Guarda-chuva", 1, 8, 0, "18");
-    document.getElementById("btn-pgc").onclick = () => rolarAtaque("Ponta do Guarda-Chuva", 1, 12, 0, "1/x4");
-    document.getElementById("btn-dec-norm").onclick = () => rolarAtaque("Decadência (Normal)", 2, 8, 2);
-    document.getElementById("btn-dec-disc").onclick = () => rolarAtaque("Decadência (Discente)", 3, 8, 3);
-    document.getElementById("btn-dec-verd").onclick = () => rolarAtaque("Decadência (Verdadeiro)", 8, 8, 8);
-
-    const skillsContainer = document.getElementById("skills-container");
-    pericias.forEach(p => {
-      const row = document.createElement("div");
-      row.className = "skill-row";
-      let classColor = p.cor === "blue" ? "highlight-blue" : (p.cor === "green" ? "highlight-green" : "");
-
-      row.innerHTML = `
-        <button class="roll-btn">🎲</button>
-        <span class="skill-name ${classColor}" style="flex-grow:1; font-weight:bold;">${p.nome}</span>
-        <span class="attr-tag ${classColor}">( ${p.attr} )</span>
-        <span class="attr-tag ${classColor}">( ${p.bonus} )</span>
-        <span class="bonus-val ${p.bonus > 0 ? (p.cor === 'blue' ? 'underline-blue highlight-blue' : 'underline-green highlight-green') : ''}">${p.bonus}</span>
-        <span class="bonus-val">${p.treino}</span>
       `;
-      row.querySelector(".roll-btn").onclick = () => rolarPericia(p);
-      skillsContainer.appendChild(row);
+
+      document.getElementById("btn-gc").onclick = () => rolarAtaque("Guarda-chuva", 1, 8, 0, "18");
+      document.getElementById("btn-pgc").onclick = () => rolarAtaque("Ponta do Guarda-Chuva", 1, 12, 0, "1/x4");
+      document.getElementById("btn-dec-norm").onclick = () => rolarAtaque("Decadência (Normal)", 2, 8, 2);
+      document.getElementById("btn-dec-disc").onclick = () => rolarAtaque("Decadência (Discente)", 3, 8, 3);
+      document.getElementById("btn-dec-verd").onclick = () => rolarAtaque("Decadência (Verdadeiro)", 8, 8, 8);
+
+      const skillsContainer = document.getElementById("skills-container");
+      skillsContainer.innerHTML = "";
+      pericias.forEach(p => {
+        const row = document.createElement("div");
+        row.className = "skill-row";
+        let classColor = p.cor === "blue" ? "highlight-blue" : (p.cor === "green" ? "highlight-green" : "");
+
+        row.innerHTML = `
+          <button class="roll-btn">🎲</button>
+          <span class="skill-name ${classColor}" style="flex-grow:1; font-weight:bold;">${p.nome}</span>
+          <span class="attr-tag ${classColor}">( ${p.attr} )</span>
+          <span class="attr-tag ${classColor}">( ${p.bonus} )</span>
+          <span class="bonus-val ${p.bonus > 0 ? (p.cor === 'blue' ? 'underline-blue highlight-blue' : 'underline-green highlight-green') : ''}">${p.bonus}</span>
+          <span class="bonus-val">${p.treino}</span>
+        `;
+        row.querySelector(".roll-btn").onclick = () => rolarPericia(p);
+        skillsContainer.appendChild(row);
+      });
+    }
+
+    // Inicialização do documento e do SDK
+    document.addEventListener("DOMContentLoaded", () => {
+      inicializarAbas();
+      renderizarConteudo();
     });
 
     OBR.onReady(() => {
-      console.log("Ficha com Aba de Ataques e Perícias pronta!");
+      inicializarAbas();
+      renderizarConteudo();
     });
   </script>
 </body>
