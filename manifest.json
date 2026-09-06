@@ -1,7 +1,7 @@
 {
   "name": "Ficha Leclerc",
-  "version": "1.0.0",
-  "manifest_version": 1,
+  "version": "2.0.0",
+  "manifest_version": 2,
   "description": "Ficha do leclerc",
   "author": "Paulin",
   "icon": "https://www.olwbear.rodeo/app-icon.png",
