@@ -64,7 +64,6 @@
 
   <!-- Aba 1: Ataques & Rituais -->
   <div id="tab-attacks" class="tab-content active">
-    <!-- Rolador Geral de Dados -->
     <div class="dice-panel">
       <div class="dice-panel-title">Rolar Dados Gerais</div>
       <div class="dice-grid">
@@ -89,7 +88,6 @@
 
   <!-- Aba 2: Perícias -->
   <div id="tab-skills" class="tab-content">
-    <!-- Rolador Geral de Dados -->
     <div class="dice-panel">
       <div class="dice-panel-title">Rolar Dados Gerais</div>
       <div class="dice-grid">
@@ -128,8 +126,10 @@
       }
     }
 
+    // Atributos do Personagem
     const atributos = { AGI: 2, FOR: 3, INT: 1, PRE: 2, VIG: 3 };
 
+    // Perícias e Bônus
     const pericias = [
       { nome: "Fortitude", attr: "VIG", bonus: 5, treino: 0, cor: "green" },
       { nome: "Furtividade+", attr: "AGI", bonus: 10, treino: 0, cor: "blue" },
