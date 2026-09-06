@@ -51,6 +51,17 @@
 
     .roll-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 15px; margin-right: 6px; }
     .roll-btn:hover { color: #fff; transform: scale(1.1); }
+
+    /* Calculadora */
+    .calc-container { background: #111; border: 1px solid #222; border-radius: 6px; padding: 10px; max-width: 240px; margin: 0 auto; }
+    .calc-display { width: 100%; height: 36px; background: #000; border: 1px solid #333; color: #0f0; font-family: monospace; font-size: 18px; text-align: right; padding: 4px 8px; box-sizing: border-box; margin-bottom: 10px; border-radius: 4px; }
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .calc-btn { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; text-align: center; }
+    .calc-btn:hover { background: #2a2a2a; }
+    .calc-btn.op { background: #2196f3; color: #fff; border-color: #1e88e5; }
+    .calc-btn.op:hover { background: #1e88e5; }
+    .calc-btn.clear { background: #f44336; color: #fff; border-color: #e53935; }
+    .calc-btn.clear:hover { background: #e53935; }
   </style>
   <script src="https://unpkg.com/@owlbear-rodeo/sdk"></script>
 </head>
@@ -58,8 +69,9 @@
 
   <!-- Menu de Navegação por Abas -->
   <div class="tab-container">
-    <button class="tab-btn active" id="btn-attacks" onclick="mudarAba('attacks')">Ataques & Rituais</button>
+    <button class="tab-btn active" id="btn-attacks" onclick="mudarAba('attacks')">Ataques</button>
     <button class="tab-btn" id="btn-skills" onclick="mudarAba('skills')">Perícias</button>
+    <button class="tab-btn" id="btn-calc" onclick="mudarAba('calc')">Calculadora</button>
   </div>
 
   <!-- Aba 1: Ataques & Rituais -->
@@ -110,19 +122,74 @@
     <div class="skill-list" id="skills-container"></div>
   </div>
 
+  <!-- Aba 3: Calculadora -->
+  <div id="tab-calc" class="tab-content">
+    <h3>Calculadora</h3>
+    <div class="calc-container">
+      <input type="text" id="calc-display" class="calc-display" readonly value="0">
+      <div class="calc-grid">
+        <button class="calc-btn clear" onclick="calcClear()">C</button>
+        <button class="calc-btn op" onclick="calcAdd('/')">/</button>
+        <button class="calc-btn op" onclick="calcAdd('*')">*</button>
+        <button class="calc-btn op" onclick="calcAdd('-')">-</button>
+        
+        <button class="calc-btn" onclick="calcAdd('7')">7</button>
+        <button class="calc-btn" onclick="calcAdd('8')">8</button>
+        <button class="calc-btn" onclick="calcAdd('9')">9</button>
+        <button class="calc-btn op" onclick="calcAdd('+')">+</button>
+
+        <button class="calc-btn" onclick="calcAdd('4')">4</button>
+        <button class="calc-btn" onclick="calcAdd('5')">5</button>
+        <button class="calc-btn" onclick="calcAdd('6')">6</button>
+        <button class="calc-btn op" onclick="calcEqual()">=</button>
+
+        <button class="calc-btn" onclick="calcAdd('1')">1</button>
+        <button class="calc-btn" onclick="calcAdd('2')">2</button>
+        <button class="calc-btn" onclick="calcAdd('3')">3</button>
+        <button class="calc-btn" onclick="calcAdd('0')">0</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     function mudarAba(nomeAba) {
       document.getElementById('tab-attacks').classList.remove('active');
       document.getElementById('tab-skills').classList.remove('active');
+      document.getElementById('tab-calc').classList.remove('active');
       document.getElementById('btn-attacks').classList.remove('active');
       document.getElementById('btn-skills').classList.remove('active');
+      document.getElementById('btn-calc').classList.remove('active');
 
       if (nomeAba === 'attacks') {
         document.getElementById('tab-attacks').classList.add('active');
         document.getElementById('btn-attacks').classList.add('active');
-      } else {
+      } else if (nomeAba === 'skills') {
         document.getElementById('tab-skills').classList.add('active');
         document.getElementById('btn-skills').classList.add('active');
+      } else if (nomeAba === 'calc') {
+        document.getElementById('tab-calc').classList.add('active');
+        document.getElementById('btn-calc').classList.add('active');
+      }
+    }
+
+    // Lógica da Calculadora
+    let calcExpression = "";
+    function calcAdd(val) {
+      if (calcExpression === "0") calcExpression = "";
+      calcExpression += val;
+      document.getElementById('calc-display').value = calcExpression;
+    }
+    function calcClear() {
+      calcExpression = "";
+      document.getElementById('calc-display').value = "0";
+    }
+    function calcEqual() {
+      try {
+        calcExpression = String(eval(calcExpression));
+        document.getElementById('calc-display').value = calcExpression;
+      } catch (e) {
+        document.getElementById('calc-display').value = "Erro";
+        calcExpression = "";
       }
     }
 
